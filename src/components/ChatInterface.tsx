@@ -58,7 +58,7 @@ const ChatInterface = () => {
       const {
         data,
         error
-      } = await supabase.functions.invoke('openai-chat', {
+      } = await supabase.functions.invoke('gemini-chat', {
         body: {
           message: userMessage,
           hasImage: !!imageFile,
