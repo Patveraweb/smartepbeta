@@ -120,7 +120,7 @@ IMPORTANTE: MÁXIMO 700 CARACTERES SIEMPRE. SOLO TEMAS DE SALUD.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: hasImage ? 'gpt-4o' : 'gpt-4o-mini',
+        model: hasImage ? 'gpt-4.1-2025-04-14' : 'gpt-4.1-mini-2025-04-14',
         messages: messages,
         max_tokens: 1000,
         temperature: 0.7,
