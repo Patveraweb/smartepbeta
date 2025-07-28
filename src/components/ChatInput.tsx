@@ -7,9 +7,10 @@ import CameraInterface from './CameraInterface';
 interface ChatInputProps {
   onSendMessage: (message: string, image?: File) => void;
   isLoading: boolean;
+  onActivity?: () => void;
 }
 
-const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
+const ChatInput = ({ onSendMessage, isLoading, onActivity }: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const [showCamera, setShowCamera] = useState(false);
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -144,7 +145,10 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
               ref={textInputRef}
               type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                onActivity?.(); // Notificar actividad al escribir
+              }}
               onKeyPress={handleKeyPress}
               placeholder="Escribe tus dudas"
               className="w-full bg-transparent border-none outline-none text-white placeholder-white/50 font-ubuntu"

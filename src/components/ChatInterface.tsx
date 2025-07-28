@@ -15,11 +15,13 @@ interface Message {
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([{
     id: '1',
-    content: 'Hola buenas, puedo ayudarte con consultas sobre medicamentos, tips y análisis de fotos de medicamentos. ¿En qué puedo ayudarte?',
+    content: '¡Hola! Soy FarmaIA, tu asistente farmacéutico inteligente de Cetepfarma. Puedo ayudarte con información sobre medicamentos, precios, disponibilidad y responder cualquier consulta relacionada con farmacología. También puedo analizar imágenes de medicamentos. ¿En qué puedo ayudarte hoy?',
     isBot: true,
     timestamp: new Date()
   }]);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -29,6 +31,26 @@ const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Timeout de inactividad
+  useEffect(() => {
+    const checkInactivity = () => {
+      const now = Date.now();
+      const inactiveTime = now - lastActivity;
+      
+      if (inactiveTime >= 120000 && !showInactivityWarning) { // 2 minutos
+        setShowInactivityWarning(true);
+      }
+    };
+
+    const interval = setInterval(checkInactivity, 10000); // Verificar cada 10 segundos
+    return () => clearInterval(interval);
+  }, [lastActivity, showInactivityWarning]);
+
+  const resetActivity = () => {
+    setLastActivity(Date.now());
+    setShowInactivityWarning(false);
+  };
   const callOpenAIAPI = async (userMessage: string, imageFile?: File): Promise<string> => {
     try {
       let imageData = null;
@@ -77,7 +99,9 @@ const ChatInterface = () => {
     }
   };
   const handleSendMessage = async (content: string, image?: File) => {
-    if (!content.trim()) return;
+    if (!content.trim() && !image) return;
+
+    resetActivity(); // Resetear actividad al enviar mensaje
 
     // Add user message
     const userMessage: Message = {
@@ -119,10 +143,12 @@ const ChatInterface = () => {
   const clearChat = () => {
     setMessages([{
       id: '1',
-      content: 'Hola buenas, puedo ayudarte con consultas sobre medicamentos, tips y análisis de fotos de medicamentos. ¿En qué puedo ayudarte?',
+      content: '¡Hola! Soy FarmaIA, tu asistente farmacéutico inteligente de Cetepfarma. Puedo ayudarte con información sobre medicamentos, precios, disponibilidad y responder cualquier consulta relacionada con farmacología. También puedo analizar imágenes de medicamentos. ¿En qué puedo ayudarte hoy?',
       isBot: true,
       timestamp: new Date()
     }]);
+    resetActivity();
+    setShowInactivityWarning(false);
     toast.info('Conversación reiniciada');
   };
   return <div className="flex flex-col h-screen font-ubuntu relative overflow-hidden" style={{
@@ -168,9 +194,32 @@ const ChatInterface = () => {
         </div>
       </div>
 
+      {/* Advertencia de inactividad */}
+      {showInactivityWarning && (
+        <div className="mb-4 mx-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg relative z-10">
+          <p className="text-yellow-800 text-sm">
+            Has estado inactivo por más de 2 minutos. ¿Te gustaría continuar con la sesión o cerrar el chat?
+          </p>
+          <div className="mt-2 space-x-2">
+            <button
+              onClick={resetActivity}
+              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            >
+              Continuar
+            </button>
+            <button
+              onClick={clearChat}
+              className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+            >
+              Cerrar Chat
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="relative z-10">
-        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} onActivity={resetActivity} />
       </div>
     </div>;
 };
