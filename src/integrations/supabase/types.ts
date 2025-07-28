@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      medicamentos: {
+        Row: {
+          categoria: string
+          created_at: string
+          descripcion: string
+          disponible: boolean
+          id: string
+          laboratorio: string | null
+          nombre: string
+          precio: number
+          presentacion: string
+          principio_activo: string
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          descripcion: string
+          disponible?: boolean
+          id?: string
+          laboratorio?: string | null
+          nombre: string
+          precio: number
+          presentacion: string
+          principio_activo: string
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          disponible?: boolean
+          id?: string
+          laboratorio?: string | null
+          nombre?: string
+          precio?: number
+          presentacion?: string
+          principio_activo?: string
+          stock?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
